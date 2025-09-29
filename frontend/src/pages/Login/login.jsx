@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Login as LoginThunk } from "../../../features/auth/authThunks";
-import { useFormValidation, getValidationRules } from "../../utils/validation"; // Updated import path
+import { useFormValidation, getValidationRules } from "../../utils/validation";
 
 const Login = () => {
   const {
@@ -37,9 +37,6 @@ const Login = () => {
       );
 
       if (LoginThunk.fulfilled.match(result)) {
-        localStorage.setItem("accessToken", result.payload.accessToken);
-        localStorage.setItem("refreshToken", result.payload.refreshToken);
-
         const toast = document.createElement("div");
         toast.className =
           "fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50";
@@ -61,6 +58,9 @@ const Login = () => {
   const handleSignupClick = () => {
     window.location.href = "/signup";
   };
+
+  // Check if there are actual error messages (not null values)
+  const hasErrors = Object.values(errors).some(error => error !== null);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -118,7 +118,7 @@ const Login = () => {
 
             <button
               type="submit"
-              disabled={loading || Object.keys(errors).length > 0}
+              disabled={loading || hasErrors}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Signing in..." : "Sign In"}

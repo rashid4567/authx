@@ -13,17 +13,13 @@ const ProfilePage = () => {
   const { profile, loading, error, updateSuccess } = useSelector(
     (state) => state.user
   );
-  const { user } = useSelector((state) => state.auth);
 
   const [isEditing, setIsEditing] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [showPasswordFields, setShowPasswordFields] = useState(false);
 
-  const validationFields = showPasswordFields
-    ? getValidationRules("updateProfile")
-    : getValidationRules("editUser");
-
+ 
   const {
     formData,
     errors,
@@ -40,7 +36,7 @@ const ProfilePage = () => {
       currentPassword: "",
       newPassword: "",
     },
-    validationFields
+    getValidationRules("editUser")
   );
 
   const getImageUrl = (imagePath) => {
@@ -77,10 +73,19 @@ const ProfilePage = () => {
       setIsEditing(false);
       setShowPasswordFields(false);
       setImageFile(null);
-      reset();
+      
+      
+      setFormData({
+        name: profile.name || "",
+        email: profile.email || "",
+        currentPassword: "",
+        newPassword: "",
+      });
+      
       dispatch(clearUpdateSuccess());
+      dispatch(getUserProfile());
     }
-  }, [updateSuccess, dispatch, reset]);
+  }, [updateSuccess, dispatch, profile, setFormData]);
 
   useEffect(() => {
     if (error) {
@@ -116,8 +121,44 @@ const ProfilePage = () => {
   };
 
   const handleSave = () => {
+
     const formErrors = validateAll();
-    if (Object.keys(formErrors).length > 0) return;
+    
+   
+    const hasBasicErrors = errors.name || errors.email;
+    
+ 
+    if (showPasswordFields) {
+      if (!formData.currentPassword) {
+        const toast = document.createElement("div");
+        toast.className =
+          "fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50";
+        toast.textContent = "Current password is required";
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+        return;
+      }
+      if (!formData.newPassword) {
+        const toast = document.createElement("div");
+        toast.className =
+          "fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50";
+        toast.textContent = "New password is required";
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+        return;
+      }
+      if (formData.newPassword.length < 6) {
+        const toast = document.createElement("div");
+        toast.className =
+          "fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50";
+        toast.textContent = "New password must be at least 6 characters";
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+        return;
+      }
+    }
+    
+    if (hasBasicErrors) return;
 
     const profileData = {
       name: formData.name.trim(),
@@ -144,7 +185,14 @@ const ProfilePage = () => {
     setIsEditing(false);
     setShowPasswordFields(false);
     setImageFile(null);
-    reset();
+
+    setFormData({
+      name: profile?.name || "",
+      email: profile?.email || "",
+      currentPassword: "",
+      newPassword: "",
+    });
+    
     setImagePreview(getImageUrl(profile?.profileImage));
   };
 
@@ -157,6 +205,9 @@ const ProfilePage = () => {
       .toUpperCase()
       .slice(0, 2);
   };
+
+
+  const hasBasicErrors = errors.name || errors.email;
 
   if (loading && !profile) {
     return (
@@ -187,8 +238,8 @@ const ProfilePage = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={handleSave}
-                  disabled={loading}
-                  className="flex items-center space-x-1 bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 transition-colors text-sm disabled:opacity-50"
+                  disabled={loading || hasBasicErrors}
+                  className="flex items-center space-x-1 bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Save className="w-4 h-4" />
                   <span>{loading ? "Saving..." : "Save"}</span>
@@ -313,11 +364,6 @@ const ProfilePage = () => {
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Enter current password"
                       />
-                      {touched.currentPassword && errors.currentPassword && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.currentPassword}
-                        </p>
-                      )}
                     </div>
 
                     <div>
@@ -333,13 +379,8 @@ const ProfilePage = () => {
                         }
                         onBlur={() => handleBlur("newPassword")}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Enter new password"
+                        placeholder="Enter new password (min 6 characters)"
                       />
-                      {touched.newPassword && errors.newPassword && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.newPassword}
-                        </p>
-                      )}
                     </div>
                   </div>
                 )}

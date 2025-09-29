@@ -3,10 +3,10 @@ import bcrypt from "bcryptjs";
 
 export const getAllUser = async (req, res) => {
   try {
-    const { page = 1, limit = 10, keyword = "", isBlocked } = req.query;
+    const { page = 1, limit = 5, keyword = "", isBlocked } = req.query;
 
     const pageNum = Number(page) || 1;
-    const limitNum = Number(limit) || 10;
+    const limitNum = Number(limit) || 5;
 
     const query = {
       role: { $ne: "admin" },

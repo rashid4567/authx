@@ -124,7 +124,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     dispatch(
-      getAllUsers({ page: currentPage, limit: 10, keyword: searchTerm })
+      getAllUsers({ page: currentPage, limit: 5, keyword: searchTerm })
     );
   }, [dispatch, currentPage]);
 
@@ -153,7 +153,7 @@ const AdminDashboard = () => {
 
   const handleSearch = () => {
     setCurrentPage(1);
-    dispatch(getAllUsers({ page: 1, limit: 10, keyword: searchTerm }));
+    dispatch(getAllUsers({ page: 1, limit: 5, keyword: searchTerm }));
   };
 
   const handleToggleStatus = (user) => {
@@ -214,7 +214,7 @@ const AdminDashboard = () => {
         setAddForm({ name: "", email: "", password: "", isBlocked: false });
         setErrors({});
         dispatch(
-          getAllUsers({ page: currentPage, limit: 10, keyword: searchTerm })
+          getAllUsers({ page: currentPage, limit: 5, keyword: searchTerm })
         );
       }
     });

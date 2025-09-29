@@ -100,7 +100,6 @@ export const useFormValidation = (initialData = {}, fields = []) => {
   };
 
   const isValid = () => {
-    
     const extras = { confirmPassword: formData.password };
     const formErrors = validateForm(formData, fields, extras);
     return Object.keys(formErrors).length === 0;
@@ -115,6 +114,7 @@ export const useFormValidation = (initialData = {}, fields = []) => {
     validateAll,
     reset,
     isValid,
+    setFormData, // Added this export
   };
 };
 
